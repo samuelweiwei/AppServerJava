@@ -18,7 +18,7 @@ public class Parser {
 	/**
 	 * Google gson object to parse input bytes array to jason string.
 	 */
-	private Gson gson = null;
+	private static Gson gson = new GsonBuilder().disableHtmlEscaping().create();
 	
 	
 	/**
@@ -33,7 +33,7 @@ public class Parser {
 	 * @param header The header of the message in byte array.
 	 * @return
 	 */
-	public int parseHeader(byte[] header) {
+	public static int parseHeader(byte[] header) {
 		int newheader = 0;
 		int t;
 		for (byte c : header) {
@@ -43,8 +43,7 @@ public class Parser {
 		return newheader;
 	}
 
-	public CSIFResponse parseContent(String content) {
-		gson = new GsonBuilder().disableHtmlEscaping().create();
+	public static CSIFResponse parseContent(String content) {
 		CSIFResponse resp = gson.fromJson(content, CSIFResponse.class);
 		return resp;
 	}
