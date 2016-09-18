@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.loraiot.iot.data.datagram.CSIFResponse;
 import com.loraiot.iot.service.Configure;
 
@@ -43,7 +44,7 @@ public class Parser {
 	}
 
 	public CSIFResponse parseContent(String content) {
-		gson = new Gson();
+		gson = new GsonBuilder().disableHtmlEscaping().create();
 		CSIFResponse resp = gson.fromJson(content, CSIFResponse.class);
 		return resp;
 	}
