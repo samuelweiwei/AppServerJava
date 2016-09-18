@@ -22,7 +22,7 @@ public class CSData2Dev extends Message implements Serializable {
 	private String DevEUI = Configure.DEFAULT_DEVEUI;
 	private boolean Confirm = true;
 	private String payload = Configure.DEFAULT_PAYLOAD;
-	private int port = Configure.DEFAULT_MESSAGE_PORT;
+	private int Port = Configure.DEFAULT_MESSAGE_PORT;
 	
 	/**
 	 * Default constructor
@@ -80,11 +80,11 @@ public class CSData2Dev extends Message implements Serializable {
 	}
 
 	public int getPort() {
-		return port;
+		return Port;
 	}
 
-	public void setPort(int port) {
-		this.port = port;
+	public void setPort(int Port) {
+		this.Port = Port;
 	}
 
 }

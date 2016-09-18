@@ -20,7 +20,7 @@ public class CSIFResponse extends Message implements Serializable {
 	private int CmdSeq = 1;
 	private String MSG= "";
 	private String payload = "";
-	private int port = 0;
+	private int Port = 0;
 	private String DevEUI = "";
 
 	/**
@@ -79,11 +79,11 @@ public class CSIFResponse extends Message implements Serializable {
 	}
 
 	public int getPort() {
-		return port;
+		return Port;
 	}
 
-	public void setPort(int port) {
-		this.port = port;
+	public void setPort(int Port) {
+		this.Port = Port;
 	}
 
 	public String getDevEUI() {
