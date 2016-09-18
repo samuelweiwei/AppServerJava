@@ -77,7 +77,7 @@ public class MMCAgent {
 				}
 			}
 			if ((conn == null) || (conn.isClosed())) {
-				conn = ConnectionFactory.getConnect(add, Configure.DEFAULT_PORT, "TCP");
+				conn = ConnectionFactory.getConnect(add, Configure.DEFAULT_PORT, Configure.comm_type);
 				rg.setConn(conn);
 				thread = new Thread(rg);
 				rg.setRunFlag(true);

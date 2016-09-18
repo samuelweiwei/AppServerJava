@@ -32,7 +32,7 @@ public class Configure {
 	
 	public final static short NONCE_LEN =8;
 	
-	public final static String DEFAULT_APPKEY="FFFFFFFFFFFFFFFE";
+	public final static String DEFAULT_APPKEY="FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
 	
 	public final static int DEFAULT_CMDSEQ = 1;
 	
@@ -57,6 +57,8 @@ public class Configure {
 	public static String hostip=DEFAULT_HOSTIP;
 	
 	public static int port = DEFAULT_PORT;
+	
+	public static String comm_type="TCP";
 	
 	private static InetSocketAddress ADDRESS = new InetSocketAddress(DEFAULT_HOSTIP,DEFAULT_PORT);
 	
@@ -110,6 +112,9 @@ public class Configure {
 	    }
 	    if (map.get("CSIF_PORT") != null){
 	    	Configure.port = Integer.parseInt(map.get("CSIF_PORT"));
+	    }
+	    if (map.get("COMM_TYPE") != null){
+	    	Configure.comm_type = map.get("COMM_TYPE");
 	    }
 	}
 

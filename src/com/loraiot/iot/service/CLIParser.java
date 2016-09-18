@@ -17,6 +17,7 @@ import com.loraiot.iot.data.datagram.CSData2Dev;
 import com.loraiot.iot.data.datagram.CSJoinReq;
 import com.loraiot.iot.data.datagram.CSQuit;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -56,9 +57,6 @@ public class CLIParser {
 
 	@Option(name = "-nonce", usage = "Setting the NONCE ")
 	private String nonce = Configure.DEFAULT_NOPNCE;
-
-	@Option(name = "-key", usage = "Setting the enciphered key")
-	private String key = Configure.DEFAULT_KEY;
 
 	@Option(name = "-pl", usage = "Setting the payload data")
 	private String payload = Configure.DEFAULT_PAYLOAD;
@@ -238,21 +236,45 @@ public class CLIParser {
 		return message;
 
 	}
+	
+	
+	public static byte[] getAppkeyBytes(String appkey) throws UnsupportedEncodingException{
+		if ((appkey == null) ||(appkey.trim().length() != 32)){
+			return null;
+		}
+		byte[] appkeyBytes = new byte[16];
+		char[] swap = appkey.toCharArray();
+		int high,low;
+		//UTF-9 is 3 bytes for one string character
+		for(int i=0;i<swap.length;i++){
+			high=Character.getNumericValue(swap[i]);
+			low=Character.getNumericValue(swap[i++]);
+			high = (high <<= 4);
+			appkeyBytes[(i-1)/2] = (byte) ((high+low) & 0XFF);
+		}
+		
+		return appkeyBytes;
+	}
 
 	/**
 	 * Method to use AES 128 to compose the challenge parameter in join message
 	 * @param content The content to use AES128 to encipher
 	 * @param password The key to add on AES128 algorithm
 	 * @return The string enciphered in AES128
+	 * @throws UnsupportedEncodingException 
 	 */
-	public static String challenge(String content, String password) {
+	public static String challenge(String content, String appkey) throws UnsupportedEncodingException {
 		try {
 			KeyGenerator kgen = KeyGenerator.getInstance("AES");
-			kgen.init(128, new SecureRandom(password.getBytes()));
+			byte[] appkeybytes = getAppkeyBytes(appkey);
+			if (appkeybytes == null){
+				return null;
+			}
+			kgen.init(128, new SecureRandom(appkeybytes));
 			SecretKey secretKey = kgen.generateKey();
 			byte[] enCodeFormat = secretKey.getEncoded();
 			SecretKeySpec key = new SecretKeySpec(enCodeFormat, "AES");
-			Cipher cipher = Cipher.getInstance("AES");// create cipher
+			Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");// create cipher
 
 			// Content from hex string to hex String
 			int v;
@@ -271,7 +293,8 @@ public class CLIParser {
 			// System.out.println();
 			cipher.init(Cipher.ENCRYPT_MODE, key);// initiate
 			byte[] result = cipher.doFinal(fin);
-			StringBuffer sb = new StringBuffer();
+			String str = new sun.misc.BASE64Encoder().encode(result);
+			/*StringBuffer sb = new StringBuffer();
 			int low, high;
 			byte lowb, highb;
 			for (int j = 0; j < result.length; j++) {
@@ -281,10 +304,9 @@ public class CLIParser {
 				highb = intToByteArray(high)[3];
 				sb.append(Integer.toHexString(lowb));
 				sb.append(Integer.toHexString(highb));
-			}
-			// System.out.println();
-			System.out.println("challenge is:" + sb.toString());
-			return (sb.toString()); // encipher
+			}			
+			System.out.println("challenge is:" + sb.toString());*/
+			return (str); // encipher
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		} catch (NoSuchPaddingException e) {

@@ -89,13 +89,15 @@ public class RespGetter implements Runnable {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 					System.out.println("Normal Exception, can be beared,just keep go on");
-					this.setRunFlag(false);					
+					this.setRunFlag(false);	
+					Configure.cmdseq_counter=Configure.DEFAULT_CMDSEQ;
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} catch(NegativeArraySizeException e){
 					System.out.println("connection closed");
 					this.setRunFlag(false);
+					Configure.cmdseq_counter=Configure.DEFAULT_CMDSEQ;
 				}finally{
 					try {
 						this.close();
