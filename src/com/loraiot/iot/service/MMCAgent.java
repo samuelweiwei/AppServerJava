@@ -21,10 +21,11 @@ public class MMCAgent {
 	private static Connection conn;
 
 	private static InetAddress add;
-	
+
 	private static Thread thread;
-	
+
 	private static RespGetter rg = new RespGetter();
+
 	/**
 	 * Defautl constructor.
 	 */
@@ -34,6 +35,7 @@ public class MMCAgent {
 
 	/**
 	 * Entry of whole process
+	 * 
 	 * @param args
 	 * @throws Exception
 	 */
@@ -44,49 +46,105 @@ public class MMCAgent {
 		Scanner s = new Scanner(System.in);
 		CLIParser cliparse = new CLIParser();
 		byte[] data2send;
-		connect();
-		
+		try {
+			add = Configure.getADDRESS();
+			connect();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+
 		rg.setConn(conn);
-		thread= new Thread(rg);
+		thread = new Thread(rg);
 		thread.start();
 
 		while (true) {
-			if ((conn != null) && (!conn.isClosed())) {
-				String line = s.nextLine();
-				if (line.equals("exit")){
-					break;
+			String line = s.nextLine();
+			if (line.equals("exit")) {
+				if ((conn != null) && (!conn.isClosed())) {
+					conn.disconnect();
+					conn = null;
+				} else {
+					conn = null;
 				}
-				args = line.split(" ");
-				data2send = cliparse.parseCmd(args);
+				rg.setConn(conn);
+				thread.interrupt();
+				break;
+			}
+			args = line.split(" ");
+			data2send = cliparse.parseCmd(args);
+			if (!args[0].trim().equalsIgnoreCase("quit")) {
+				if ((conn == null) || (conn.isClosed())) {
+					conn = connect();
+					rg = new RespGetter();
+					rg.setConn(conn);
+					thread = new Thread(rg);
+					thread.start();
+
+				}
+			}
+			if ((conn != null) && (!conn.isClosed())) {
 				// server socket come data
-				conn.putData(data2send);
+				try {
+					conn.putData(data2send);
+				} catch (IOException e) {
+					if ((conn == null) || (conn.isClosed())) {
+						InetAddress add;
+						try {
+							add = Configure.getADDRESS();
+							conn = ConnectionFactory.getConnect(add, Configure.port, "TCP");
+							rg.setConn(conn);
+							conn.putData(data2send);
+						} catch (UnknownHostException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							System.out.println(
+									"retry connect fail or connection problem, break out and restart the applicatoin");
+							e1.printStackTrace();
+							thread.interrupt();
+							rg.setRunFlag(false);
+							thread.interrupt();
+							if ((conn != null) || (!conn.isClosed())) {
+								conn.disconnect();
+								conn = null;
+								rg.setConn(null);
+							}
+							break;
+						}
+					}
+				}
 				if (data2send != null) {
 					Configure.cmdseq_counter = Configure.cmdseq_counter + 2;
 				}
 				Thread.sleep(2000);
-				if (args[0].equalsIgnoreCase("quit")) {
-					System.out.println("quit cmd sent");
+				if (args[0].trim().equalsIgnoreCase("quit")) {
+					System.out.println("quit cmd has sent");
 					Configure.cmdseq_counter = Configure.DEFAULT_CMDSEQ;
-					thread.interrupt();
 					rg.setRunFlag(false);
+					thread.interrupt();
+					// thread.interrupt();
 					if ((conn != null) || (!conn.isClosed())) {
 						conn.disconnect();
 						conn = null;
+						rg.setConn(null);
 					}
+				}
+				
+				//In fact, if application runs, the connection must be kept, if closed, open again
+				if ((conn == null) || (conn.isClosed())) {
+					conn = connect();
+					rg.setConn(conn);
+					thread = new Thread(rg);
+					rg.setRunFlag(true);
+					thread.start();
+					if (conn == null) {
+						System.out.println("Acquire connection failed, connecting error");
+						break;
+					}
+				}
+			}
 
-				}
-			}
-			if ((conn == null) || (conn.isClosed())) {
-				conn = ConnectionFactory.getConnect(add, Configure.DEFAULT_PORT, Configure.comm_type);
-				rg.setConn(conn);
-				thread = new Thread(rg);
-				rg.setRunFlag(true);
-				thread.start();
-				if (conn == null) {
-					System.out.println("Acquire connection failed, connecting error");
-					break;
-				}
-			}
 			/*
 			 * if (rg.getMessage() != null){ System.out.println("answer is:"+new
 			 * String(rg.getMessage())); }
@@ -97,7 +155,6 @@ public class MMCAgent {
 
 	}
 
-
 	public static Connection getConn() {
 		return conn;
 	}
@@ -106,14 +163,15 @@ public class MMCAgent {
 		MMCAgent.conn = conn;
 	}
 
-	
 	/**
 	 * Connect the socket to server.
+	 * 
 	 * @throws IOException
 	 */
-	public static void connect() throws IOException{
+	public static Connection connect() throws IOException {
 		add = Configure.getADDRESS();
 		conn = ConnectionFactory.getConnect(add, Configure.port, "TCP");
+		return conn;
 	}
 
 	public static InetAddress getAdd() {
@@ -123,9 +181,9 @@ public class MMCAgent {
 	public static void setAdd(InetAddress add) {
 		MMCAgent.add = add;
 	}
-	
-	public static void disconnect() throws IOException{
-		if (conn != null){
+
+	public static void disconnect() throws IOException {
+		if (conn != null) {
 			conn.disconnect();
 		}
 	}

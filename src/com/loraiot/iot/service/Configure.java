@@ -40,13 +40,13 @@ public class Configure {
 	
 	public final static int DEFAULT_MESSAGE_PORT = 10;
 	
-	public final static String DEFAULT_HOSTIP="10.47.73.60";	
+	public final static String DEFAULT_HOSTIP="139.129.216.128";	
 
 	public final static int MAX_HEADER=5;
 	
-	public final static String DEFAULT_IOTHOST="claaiot.com";
+	public final static String DEFAULT_IOTHOST="msp02.claaiot.com";
 	
-	public final static String DEFAULT_IOTHOSTIP = "139.129.207.135";
+	public final static String DEFAULT_IOTHOSTIP = "139.129.216.128";
 	
 	public final static int DEFAULT_IOTSSLPort = 30001;
 	
@@ -116,6 +116,7 @@ public class Configure {
 	    if (map.get("COMM_TYPE") != null){
 	    	Configure.comm_type = map.get("COMM_TYPE");
 	    }
+	    ADDRESS = new InetSocketAddress(hostip,port);
 	}
 
 }

@@ -52,7 +52,7 @@ public class CLIParser {
 			+ "-mport Setting the message key port", help = true)
 	private String help;
 
-	@Option(name = "-appeui", usage = "Setting the appeui of the login")
+	@Option(name = "-appeui", usage = "Setting the appeui of the login", required = true)
 	private String appeui = Configure.DEFAULT_APPEUI;
 
 	@Option(name = "-nonce", usage = "Setting the NONCE ")
