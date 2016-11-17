@@ -369,7 +369,7 @@ public class CLIParser {
         //implementation might nevertheless decode the lines, and
         //might report the erroneous encoding to the user.
 		String put = new sun.misc.BASE64Encoder().encode(input);
-		put.replaceAll("\r|\n", "");
+		put = put.replaceAll(Matcher.quoteReplacement("\r|\n"), "");
 		return put;
 	}
 
