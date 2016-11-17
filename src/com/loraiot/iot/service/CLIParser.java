@@ -360,7 +360,17 @@ public class CLIParser {
 	 * @return The printable string in base64 coder.
 	 */
 	public static String encodeBase64(byte[] input) throws Exception {
-		return new sun.misc.BASE64Encoder().encode(input);
+		//return new sun.misc.BASE64Encoder().encode(input);
+		//Modify by weiwei on 2016.11.16 to set the problem that every
+		//76 chars will insert \r,\n or \r\n  by RFC2045:
+		//Encoded lines must not be longer than 76 characters,
+        //not counting the trailing CRLF. If longer lines are
+        //found in incoming, encoded data, a robust
+        //implementation might nevertheless decode the lines, and
+        //might report the erroneous encoding to the user.
+		String put = new sun.misc.BASE64Encoder().encode(input);
+		put.replaceAll("\r|\n", "");
+		return put;
 	}
 
 	/***
